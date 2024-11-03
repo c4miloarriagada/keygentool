@@ -7,3 +7,9 @@ type Keygen struct {
 	Active    bool
 	CreatedAt time.Time
 }
+
+func (e *Keygen) CreateNewKeygen() {
+	e.Active = false
+	e.HashedPwd = ""
+	e.CreatedAt = time.Now()
+}
