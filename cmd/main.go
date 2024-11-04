@@ -4,44 +4,39 @@ import (
 	"fmt"
 	"keygenpass/internal/domain"
 	"keygenpass/internal/infra"
+	"time"
 )
 
 func main() {
+	fileRepo := infra.NewFileEntityRepository("internal/resources/entity.json")
 
 	repo := infra.NewInMemoryEntityRepository()
-
 	entity := domain.Entities{
 		ID:     1,
-		Name:   "Test Entity",
+		Name:   "Bank Account",
 		Active: true,
+		Url:    domain.Url{Name: "https://www.bank.com", HasUrl: true},
+		Key:    domain.Keygen{HashedPwd: "test", Active: true, CreatedAt: time.Now()},
+	}
+	entity2 := domain.Entities{
+		ID:     2,
+		Name:   "Bank Account",
+		Active: true,
+		Url:    domain.Url{Name: "https://www.bank2.com", HasUrl: true},
+		Key:    domain.Keygen{HashedPwd: "test", Active: true, CreatedAt: time.Now()},
 	}
 
-	err := repo.Save(entity)
-	if err != nil {
+	if err := repo.Save(entity); err != nil {
 		fmt.Println("Error al guardar la entidad:", err)
-	}
-
-	// Obtener la entidad por ID
-	retrievedEntity, err := repo.FindByID(1)
-	if err != nil {
-		fmt.Println("Error al obtener la entidad:", err)
 	} else {
-		fmt.Println("Entidad obtenida:", retrievedEntity)
+		fmt.Println("Entidad guardada en memoria y archivo con éxito.")
 	}
-
-	// Obtener todas las entidades
-	allEntities, err := repo.FindAll()
-	if err != nil {
-		fmt.Println("Error al obtener todas las entidades:", err)
+	if err := repo.Save(entity2); err != nil {
+		fmt.Println("Error al guardar la entidad:", err)
 	} else {
-		fmt.Println("Todas las entidades:", allEntities)
+		fmt.Println("Entidad guardada en memoria y archivo con éxito.")
 	}
+	allRepos, _ := repo.FindAll()
+	fileRepo.Save(allRepos)
 
-	// Eliminar la entidad por ID
-	err = repo.Delete(1)
-	if err != nil {
-		fmt.Println("Error al eliminar la entidad:", err)
-	} else {
-		fmt.Println("Entidad eliminada exitosamente.")
-	}
 }
