@@ -4,10 +4,17 @@ import (
 	"fmt"
 	"keygenpass/internal/domain"
 	"keygenpass/internal/infra"
+	"keygenpass/internal/utils"
 	"time"
 )
 
+func simulateClose() {
+	fmt.Println("EXEC CLEAN, SAVE FXS...")
+}
+
 func main() {
+
+	utils.OnCloseHook(simulateClose)
 	fileRepo := infra.NewFileEntityRepository("internal/resources/entity.json")
 
 	repo := infra.NewInMemoryEntityRepository()
@@ -38,5 +45,5 @@ func main() {
 	}
 	allRepos, _ := repo.FindAll()
 	fileRepo.Save(allRepos)
-
+	select {}
 }
