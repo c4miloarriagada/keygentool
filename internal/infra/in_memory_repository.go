@@ -3,14 +3,27 @@ package infra
 import (
 	"errors"
 	"keygenpass/internal/domain"
+	"sync"
 )
 
 type InMemoryEntityRepository struct {
 	entities map[int]domain.Entities
 }
 
-func NewInMemoryEntityRepository() *InMemoryEntityRepository {
-	return &InMemoryEntityRepository{entities: make(map[int]domain.Entities)}
+var (
+	instance  *InMemoryEntityRepository
+	once      sync.Once
+	waitGroup sync.WaitGroup
+)
+
+func InMemoryEntityRespository() *InMemoryEntityRepository {
+	once.Do(func() {
+		waitGroup.Add(1)
+		instance = &InMemoryEntityRepository{entities: make(map[int]domain.Entities)}
+		waitGroup.Done()
+	})
+	waitGroup.Wait()
+	return instance
 }
 
 func (repo *InMemoryEntityRepository) Save(entity domain.Entities) error {
