@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
-	"keygenpass/internal/infra"
+	"keygenpass/internal/handler"
+	"keygenpass/internal/service"
+	"keygenpass/internal/ui"
 	"keygenpass/internal/utils"
+	"keygenpass/pkg"
 )
 
 func simulateClose() {
@@ -13,39 +16,15 @@ func simulateClose() {
 func main() {
 
 	utils.Init()
+	app := pkg.App()
+	entitiesService := &service.EntitesService{}
+	entitiesHandler := handler.NewEntitiesHandler(entitiesService)
 
-	// utils.Close(simulateClose)
-	// fileRepo := infra.NewFileEntityRepository("internal/resources/entity.json")
+	form := ui.NewAddEntityUI(app, entitiesHandler)
+	utils.Close()
+	if err := app.SetRoot(form, true).Run(); err != nil {
+		panic(err)
+	}
 
-	// repo := infra.NewInMemoryEntityRepository()
-	// entity := domain.Entities{
-	// 	ID:     1,
-	// 	Name:   "Bank Account",
-	// 	Active: true,
-	// 	Url:    domain.Url{Name: "https://www.bank.com", HasUrl: true},
-	// 	Key:    domain.Keygen{HashedPwd: "test", Active: true, CreatedAt: time.Now()},
-	// }
-	// entity2 := domain.Entities{
-	// 	ID:     2,
-	// 	Name:   "Bank Account",
-	// 	Active: true,
-	// 	Url:    domain.Url{Name: "https://www.bank2.com", HasUrl: true},
-	// 	Key:    domain.Keygen{HashedPwd: "test", Active: true, CreatedAt: time.Now()},
-	// }
-
-	// if err := repo.Save(entity); err != nil {
-	// 	fmt.Println("Error al guardar la entidad:", err)
-	// } else {
-	// 	fmt.Println("Entidad guardada en memoria y archivo con éxito.")
-	// }
-	// if err := repo.Save(entity2); err != nil {
-	// 	fmt.Println("Error al guardar la entidad:", err)
-	// } else {
-	// 	fmt.Println("Entidad guardada en memoria y archivo con éxito.")
-	// }
-	// allRepos, _ := repo.FindAll()
-	// fileRepo.Save(allRepos)
-	repo := infra.InMemoryEntityRespository()
-	fmt.Println(repo.FindAll())
 	select {}
 }
