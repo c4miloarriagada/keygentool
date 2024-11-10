@@ -6,12 +6,16 @@ import (
 	"syscall"
 )
 
-func Close(hookFunc func()) {
+func Close() {
 	signalChannel := make(chan os.Signal, 1)
 	signal.Notify(signalChannel, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-signalChannel
-		hookFunc()
+		onSave()
 		os.Exit(0)
 	}()
+}
+
+func onSave() {
+
 }
