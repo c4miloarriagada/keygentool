@@ -7,24 +7,36 @@ import (
 	"keygenpass/internal/ui"
 	"keygenpass/internal/utils"
 	"keygenpass/pkg"
+
+	"github.com/gdamore/tcell/v2"
 )
 
-func simulateClose() {
-	fmt.Println("EXEC CLEAN, SAVE FXS...")
-}
-
 func main() {
-
 	utils.Init()
+	defer utils.Close()
+
 	app := pkg.App()
-	entitiesService := &service.EntitesService{}
+
+	entitiesService := service.NewEntitiesService()
 	entitiesHandler := handler.NewEntitiesHandler(entitiesService)
 
-	form := ui.NewAddEntityUI(app, entitiesHandler)
-	utils.Close()
-	if err := app.SetRoot(form, true).Run(); err != nil {
-		panic(err)
-	}
+	navigation := ui.NewNavigation(app)
+	navigation.RegisterScreen("addEntity", ui.NewAddEntityUI(app, entitiesHandler))
+	navigation.RegisterScreen("listEntities", ui.NewListEntitiesUI(app, entitiesHandler))
 
-	select {}
+	navigation.NavigateTo("addEntity")
+
+	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Rune() {
+		case 'a':
+			navigation.NavigateTo("addEntity")
+		case 'l':
+			navigation.NavigateTo("listEntities")
+		}
+		return event
+	})
+
+	if err := app.Run(); err != nil {
+		fmt.Printf("Error al ejecutar la aplicación: %v\n", err)
+	}
 }
