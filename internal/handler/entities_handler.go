@@ -7,18 +7,23 @@ import (
 )
 
 type EntitiesHandler struct {
-	service *service.EntitesService
+	service service.EntitiesService
 }
 
-func NewEntitiesHandler(service *service.EntitesService) *EntitiesHandler {
-
+func NewEntitiesHandler(service service.EntitiesService) *EntitiesHandler {
 	return &EntitiesHandler{service: service}
-
 }
 
 func (h *EntitiesHandler) CreateEntity(id int, name string, active bool, urlName string, hashedPwd string, keyActive bool) (*domain.Entities, error) {
-	url := domain.Url{Name: urlName, HasUrl: urlName != ""}
-	key := domain.Keygen{HashedPwd: hashedPwd, Active: keyActive, CreatedAt: time.Now()}
+	url := domain.Url{
+		Name:   urlName,
+		HasUrl: urlName != "",
+	}
+	key := domain.Keygen{
+		HashedPwd: hashedPwd,
+		Active:    keyActive,
+		CreatedAt: time.Now(),
+	}
 
 	return h.service.CreateEntity(id, name, active, url, key)
 }

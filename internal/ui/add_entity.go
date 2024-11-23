@@ -1,17 +1,19 @@
 package ui
 
 import (
+	"fmt"
 	"keygenpass/internal/handler"
+	"keygenpass/internal/infra"
 	"strconv"
 
 	"github.com/rivo/tview"
 )
 
-func NewAddEntityUI(app *tview.Application, handler *handler.EntitiesHandler) *tview.Form {
+func NewAddEntityUI(app *tview.Application, handler *handler.EntitiesHandler, navigationChannel chan string) *tview.Form {
 	var id int
 	var name, urlName, hashedPwd string
 	var active, keyActive bool
-
+	repo := infra.InMemoryEntityRespository()
 	form := tview.NewForm().
 		AddInputField("ID", "", 20, nil, func(text string) {
 			id, _ = strconv.Atoi(text)
@@ -33,22 +35,24 @@ func NewAddEntityUI(app *tview.Application, handler *handler.EntitiesHandler) *t
 		}).
 		AddButton("Save", func() {
 			entity, err := handler.CreateEntity(id, name, active, urlName, hashedPwd, keyActive)
+
 			if err != nil {
 
-				// modal := tview.NewModal().
-				// 	SetText("Error al crear la entidad: " + err.Error()).
-				// 	AddButtons([]string{"OK"}).
-				// 	SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-				// 		app.SetRoot(form, true) // Vuelve al formulario
-				// 	})
-				// app.SetRoot(modal, true)
-			} else {
-
 				modal := tview.NewModal().
-					SetText("Entidad creada exitosamente con ID: " + strconv.Itoa(entity.ID)).
+					SetText("Error al crear la entidad: " + err.Error()).
 					AddButtons([]string{"OK"}).
 					SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-						app.Stop()
+						navigationChannel <- "addEntity"
+					})
+				app.SetRoot(modal, true)
+			} else {
+				todo, _ := repo.FindAll()
+				repo.Save(*entity)
+				modal := tview.NewModal().
+					SetText("Entidad creada exitosamente:\n" + fmt.Sprintf("%+v", todo)).
+					AddButtons([]string{"OK"}).
+					SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+						navigationChannel <- "listEntities"
 					})
 				app.SetRoot(modal, true)
 			}
