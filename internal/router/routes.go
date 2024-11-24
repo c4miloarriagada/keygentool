@@ -11,15 +11,12 @@ import (
 )
 
 func AppRouter() *tview.Application {
-
 	navigationChannel := make(chan string)
 
 	app := pkg.App()
 
 	entitiesService := service.NewEntitiesService()
-
 	entitiesHandler := handler.NewEntitiesHandler(entitiesService)
-
 	navigation := ui.NewNavigation(app)
 
 	navigation.RegisterScreen("addEntity", func() tview.Primitive {
@@ -36,10 +33,10 @@ func AppRouter() *tview.Application {
 	}()
 
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Rune() {
-		case rune(tcell.KeyRight):
+		switch event.Key() {
+		case tcell.KeyRight:
 			navigationChannel <- "addEntity"
-		case rune(tcell.KeyLeft):
+		case tcell.KeyLeft:
 			navigationChannel <- "listEntities"
 		}
 		return event
